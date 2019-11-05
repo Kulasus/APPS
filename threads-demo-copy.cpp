@@ -4,9 +4,11 @@
 #include <sys/time.h>
 #include <sys/param.h>
 #include <pthread.h>
+#include <iostream>
 
-#define DATA_TYPE float
+#define DATA_TYPE long
 #define LENGTH_LIMIT 1000000
+#define SWITCH true
 
 class task_part{
     public:
@@ -69,15 +71,11 @@ int timeval_to_ms(timeval *befor, timeval *after)
 //Tridici algoritmus BubbleSort
 void bubbleSort(DATA_TYPE *data,int from,int length)
 {
-    if(from >= length)
-    {
-        printf("Invalid input!");
-        return;
-    }
+
     DATA_TYPE x;
     for(int i = from; i < length; i++)
     {
-        for(int j = i; j < length; j++)
+        for(int j = from; j < length; j++)
         {
             if(data[j] > data[j+1])
             {
@@ -89,41 +87,61 @@ void bubbleSort(DATA_TYPE *data,int from,int length)
     }
 }
 
-void insertionSort(DATA_TYPE *data, int from, int length)
+void insertionSort(DATA_TYPE *data, int from, int length,bool asc)
 {
+/*
     if(from >= length)
     {
         printf("Invalid input!");
         return;
     }
+*/
+
     int i, j;  
     DATA_TYPE key;
-    for (i = from; i < length; i++) 
-    {  
-        key = data[i];  
-        j = i - 1;  
-  
-        /* Move elements of arr[0..i-1], that are  
-        greater than key, to one position ahead  
-        of their current position */
-        while (j >= 0 && data[j] > key) 
+    if(asc)
+    {
+        for (i = from; i < length+from; i++) 
         {  
-            data[j + 1] = data[j];  
-            j = j - 1;  
-        }  
-        data[j + 1] = key;  
+            key = data[i];  
+            j = i - 1;  
+
+            while (j >= from && data[j] > key) 
+            {  
+                data[j + 1] = data[j];  
+                j = j - 1;  
+            }  
+            data[j + 1] = key;  
+        }
     }
+    else
+    {
+        for (i = from; i < length+from; i++) 
+        {  
+            key = data[i];  
+            j = i - 1;  
+
+            while (j >= from && data[j] < key) 
+            {  
+                data[j + 1] = data[j];  
+                j = j - 1;  
+            }  
+            data[j + 1] = key;  
+        }
+    }
+    
 
 }
 
 void selectionSort(DATA_TYPE *data, int from, int length)
 {
+/*
     if(from >= length)
     {
         printf("Invalid input!");
         return;
     }
-
+*/
     int i, j,min_idx;
     DATA_TYPE key;
     
@@ -185,9 +203,10 @@ void printArray(DATA_TYPE *data, int from, int length)
     {
         return;
     }
-    for(int i = from; i < length)
+    std::cout<<std::endl;
+    for(int i = from; i < length; i++)
     {
-        printf("\n %d = %d",i,data[i]);
+        std::cout<<i<<" "<<data[i]<<std::endl;
     }
 }
 
@@ -196,8 +215,8 @@ int main(int na, char **arg)
 {
     //inicialization of values for time measurement
     timeval time_before,time_after;
-    int length1 = 100;
-    int length2 = 10;
+    int length1 = 8;
+    int length2 = 12;
 
 
     if(na != 2)
@@ -236,15 +255,86 @@ int main(int na, char **arg)
     {
         my_array[i] = rand() % (my_length*10);
         
-        //Vypisuje tečky dokud se nevygeneruje celé pole ... 
-        /*
+        //Vypisuje tečky dokud se nevygeneruje celé pole ...         
         if(!(i%LENGTH_LIMIT))
         {
             printf(".");
             fflush(stdout);
         }
-        */
     }
+    for(int i = 0; i < length1; i++)
+    {
+        array1[i] = rand() % (my_length*10);
+    }
+    for(int i = 0; i < length2; i++)
+    {
+        array2[i] = rand() % (my_length*10);
+    }
+
+
+    printArray(array2,0,length2);
+    std::cout<<"-----------------------"<<std::endl;
+
+    /*
+    insertionSort(array2,0,length2/2,SWITCH);
+    insertionSort(array2,length2/2,length2/2,SWITCH);
+    printArray(array2,0,length2);
+    std::cout<<"-----------------------"<<std::endl;    
+
+    insertionSort(array1,0,length1,SWITCH);
+    printArray(array1,0,length1);
+    std::cout<<"-----------------------"<<std::endl;
+
+    //DATA_TYPE *array12 = mergeArrays(array1,length1,array2,length2);
+    //printArray(array12,0,length1+length2);
+    */
+   
+    insertionSort(array2,0,length2/6,SWITCH);
+    insertionSort(array2,length2/6,length2/6,SWITCH);
+    insertionSort(array2,(length2/6)*2,length2/6,SWITCH);
+    insertionSort(array2,(length2/6)*3,length2/6,SWITCH);
+    insertionSort(array2,(length2/6)*4,length2/6,SWITCH);
+    insertionSort(array2,(length2/6)*5,length2/6,SWITCH);
+    
+    printArray(array2,0,length2);
+    
+    /*
+    int block_length = length2/6;
+    //--
+    DATA_TYPE *block1 = new DATA_TYPE[block_length];
+    block1[0] = array2[0];
+    block1[1] = array2[1];
+    //--
+    DATA_TYPE *block2 = new DATA_TYPE[block_length];
+    block2[0] = array2[2];
+    block2[1] = array2[3];
+    //--
+    DATA_TYPE *block3 = new DATA_TYPE[block_length];
+    block3[0] = array2[4];
+    block3[1] = array2[5];
+    //--
+    DATA_TYPE *block4 = new DATA_TYPE[block_length];
+    block4[0] = array2[6];
+    block4[1] = array2[7];
+    //--
+    DATA_TYPE *block5 = new DATA_TYPE[block_length];
+    block5[0] = array2[8];
+    block5[1] = array2[9];
+    //--
+    DATA_TYPE *block6 = new DATA_TYPE[block_length];
+    block6[0] = array2[10];
+    block6[1] = array2[11];
+
+    
+    DATA_TYPE *block12 = mergeArrays(block1,block_length,block2,block_length);
+    std::cout<<"-----------------------"<<std::endl;
+    printArray(block12,0,block_length*2);
+
+    */
+    
+    
+
+    printf("-------------------VLAKNA--------------------------------");
 
     //Sorting using bubblesort
     /*
