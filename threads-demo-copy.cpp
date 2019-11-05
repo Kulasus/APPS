@@ -5,8 +5,8 @@
 #include <sys/param.h>
 #include <pthread.h>
 
-#define DATA_TYPE int
-#define LENGTH_LIMIT 10000000
+#define DATA_TYPE float
+#define LENGTH_LIMIT 1000000
 
 class task_part{
     public:
@@ -57,6 +57,7 @@ void *my_thread(void *void_arg)
     return NULL;
 }
 
+
 //Funkce počítající rozdíl v ms mezi dvěma časy
 int timeval_to_ms(timeval *befor, timeval *after)
 {
@@ -65,9 +66,140 @@ int timeval_to_ms(timeval *befor, timeval *after)
     return 1000*res.tv_sec + res.tv_usec/1000;
 }
 
+//Tridici algoritmus BubbleSort
+void bubbleSort(DATA_TYPE *data,int from,int length)
+{
+    if(from >= length)
+    {
+        printf("Invalid input!");
+        return;
+    }
+    DATA_TYPE x;
+    for(int i = from; i < length; i++)
+    {
+        for(int j = i; j < length; j++)
+        {
+            if(data[j] > data[j+1])
+            {
+                x = data[j+1];
+                data[j+1] = data[j];
+                data[j] = x;
+            }
+        }
+    }
+}
+
+void insertionSort(DATA_TYPE *data, int from, int length)
+{
+    if(from >= length)
+    {
+        printf("Invalid input!");
+        return;
+    }
+    int i, j;  
+    DATA_TYPE key;
+    for (i = from; i < length; i++) 
+    {  
+        key = data[i];  
+        j = i - 1;  
+  
+        /* Move elements of arr[0..i-1], that are  
+        greater than key, to one position ahead  
+        of their current position */
+        while (j >= 0 && data[j] > key) 
+        {  
+            data[j + 1] = data[j];  
+            j = j - 1;  
+        }  
+        data[j + 1] = key;  
+    }
+
+}
+
+void selectionSort(DATA_TYPE *data, int from, int length)
+{
+    if(from >= length)
+    {
+        printf("Invalid input!");
+        return;
+    }
+
+    int i, j,min_idx;
+    DATA_TYPE key;
+    
+    // One by one move boundary of unsorted subarray  
+    for (i = from; i < length; i++)  
+    {  
+        // Find the minimum element in unsorted array  
+        min_idx = i;  
+        for (j = i+1; j < length; j++)
+        {
+            if (data[j] < data[min_idx])
+            {
+                min_idx = j;
+                key = data[min_idx];
+                data[min_idx] = data[i];
+                data[i] = key;
+            }  
+
+        }
+    }  
+
+}
+
+DATA_TYPE * mergeArrays(DATA_TYPE *data1, int length1, DATA_TYPE *data2, int length2)
+{
+    int lengthRes = length1 + length2;
+    DATA_TYPE *arrayRes = new DATA_TYPE[lengthRes];
+    int i = 0;
+    int j = 0;
+    int k = 0;
+
+    while(i < length1 && j < length2)
+    {
+        if(data1[i] < data2[j])
+        {
+            arrayRes[k] = data1[i];
+            i++;
+            k++;
+        }
+        else
+        {
+            arrayRes[k] = data2[i];
+        }
+    }
+    while(i < length1)
+    {
+        arrayRes[k++] = data1[i++];        
+    }
+    while(j < length2)
+    {   
+        arrayRes[k++] = data2[j++];        
+    }
+    return arrayRes;
+}
+
+void printArray(DATA_TYPE *data, int from, int length)
+{
+    if(from >= length)
+    {
+        return;
+    }
+    for(int i = from; i < length)
+    {
+        printf("\n %d = %d",i,data[i]);
+    }
+}
+
 //MAIN
 int main(int na, char **arg)
 {
+    //inicialization of values for time measurement
+    timeval time_before,time_after;
+    int length1 = 100;
+    int length2 = 10;
+
+
     if(na != 2)
     {
         printf("Specify number of elements, at least %d.\n", LENGTH_LIMIT);
@@ -88,8 +220,17 @@ int main(int na, char **arg)
         return 1;
     }
 
+    DATA_TYPE *array1 = new DATA_TYPE[length1];
+    DATA_TYPE *array2 = new DATA_TYPE[length2];
+
+    if(!array1 || !array2)
+    {
+        printf("Not enought memory for array!\n");  
+    }
+    
+
     //initialization of random number generator
-    srand((int) time(NULL));
+    srand((DATA_TYPE) time(NULL));
     printf("\nRandom numbers generation started...\n");
     for(int i = 0; i < my_length; i++)
     {
@@ -105,7 +246,32 @@ int main(int na, char **arg)
         */
     }
 
+    //Sorting using bubblesort
+    /*
+    printf("Sorting using bubblesort started...\n");
+    gettimeofday(&time_before,NULL);
+    bubbleSort(my_array,0,my_length);
+    gettimeofday(&time_after,NULL);
+    printf("The sorting time: %d [ms]\n",timeval_to_ms(&time_before,&time_after));
+    */
 
+    //Sorting using isertionsort
+    /*
+    printf("Sorting using insertionsort started...\n");
+    gettimeofday(&time_before,NULL);
+    insertionSort(my_array,0,my_length);
+    gettimeofday(&time_after,NULL);
+    printf("The sorting time: %d [ms]\n",timeval_to_ms(&time_before,&time_after));
+    */
+
+    //Sorting using selectionsort
+    /*
+    printf("Sorting using selectionsort started...\n");
+    gettimeofday(&time_before,NULL);
+    insertionSort(my_array,0,my_length);
+    gettimeofday(&time_after,NULL);
+    printf("The sorting time: %d [ms]\n",timeval_to_ms(&time_before,&time_after));
+    */
 
     //ALGORITHM USING TWO THREADS
     printf("\nMaximum number search using two threads...\n");
@@ -113,7 +279,7 @@ int main(int na, char **arg)
     task_part tp1(1,0,my_length/2,my_array);
     task_part tp2(2,my_length/2,my_length-my_length/2, my_array);
 
-    timeval time_before,time_after;
+    
     gettimeofday(&time_before,NULL);
 
     pthread_create(&pt1,NULL,my_thread,&tp1);
