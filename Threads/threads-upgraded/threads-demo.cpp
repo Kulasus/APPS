@@ -214,10 +214,10 @@ int main(int na, char** arg)
     //vytvoreni threadu a task_partu
     int th_count = 2;
     if(na == 3)
-        th_count = atoi(arg[2]);
+        th_count = atoi(arg[2]); //defaultne vytvori dve vlakna jinak podle poctu co zadal uzviatel...
         
-    pthread_t threads[th_count];
-    std::vector<task_part> parts;
+    pthread_t threads[th_count]; //pole vlaken
+    std::vector<task_part> parts; //nacpani vlaken do vektoru
     for (int i = 0; i < th_count; ++i)
     {
         parts.push_back(task_part(i + 1, i * (N / th_count), (i + 1) * (N / th_count), pole));
@@ -234,7 +234,7 @@ int main(int na, char** arg)
     printf("\nRandom numbers generating started...\n");
     for (int i = 0; i < th_count; ++i)
     {
-        pthread_create(&threads[i], NULL, thread_fill, &parts[i]);
+        pthread_create(&threads[i], NULL, thread_fill, &parts[i]); //kazdy thread vytvori svoje pole a to naplni random
     }
     for (int i = 0; i < th_count; ++i)
     {
@@ -250,11 +250,11 @@ int main(int na, char** arg)
     printf("\nSorting started...\n");
     for (int i = 0; i < th_count; ++i)
     {
-        pthread_create(&threads[i], NULL, thread_sort, &parts[i]);
+        pthread_create(&threads[i], NULL, thread_sort, &parts[i]); //kazdy thread sortne svoje pole podle vybraneho algoritmu na sort
     }
     for (int i = 0; i < th_count; ++i)
     {
-        pthread_join(threads[i], NULL);
+        pthread_join(threads[i], NULL); 
     }
     // Time recording after sorting
     gettimeofday(&time_after, NULL);
@@ -270,7 +270,7 @@ int main(int na, char** arg)
     {
         if(pole == nullptr)
         {
-            pole = mergeArrays(parts[i].result, parts[i + 1].result, parts[i].N, parts[i + 1].N);
+            pole = mergeArrays(parts[i].result, parts[i + 1].result, parts[i].N, parts[i + 1].N); //vsechny pole se sjednoti do jednoho
             N = parts[i].N + parts[i].N;
         }
         else
